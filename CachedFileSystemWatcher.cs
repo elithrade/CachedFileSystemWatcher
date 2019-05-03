@@ -21,11 +21,16 @@ namespace CachedFileSystemWatcher
 
         public CachedFileSystemWatcher(string watchFolder, string watchFilter, Action<List<string>> process)
         {
+            if (!Directory.Exists(watchFolder))
+            {
+                throw new ArgumentException($"{watchFolder} doesn't exist");
+            }
+
             _watchFolder = watchFolder;
             _watchFilter = watchFilter;
             _process = process;
             _cache = new ConcurrentQueue<CachedFile>();
-            _timer = new Timer {Interval = TimerIntervalSeconds * 1000};
+            _timer = new Timer { Interval = TimerIntervalSeconds * 1000 };
             _timer.Elapsed += ProcessCache;
         }
 
@@ -48,7 +53,7 @@ namespace CachedFileSystemWatcher
 
             _fileSystemWatcher.Created += OnCreated;
 
-            Console.WriteLine( $"Started watching {_watchFilter} files created under {_watchFolder}");
+            Console.WriteLine($"Started watching {_watchFilter} files created under {_watchFolder}");
         }
 
         private void ProcessCache(object sender, ElapsedEventArgs e)
